@@ -1,0 +1,3 @@
+NSHomeKitUsageDescription = "Dear Home AI reads your rooms, accessories, and scenes so it can talk about the house. This version only suggests changes. It does not turn devices on or off.";
+NSLocalNetworkUsageDescription = "A later version lets the owner's iPhone host the family MQTT gateway. This build reserves the local network permission and does not browse the LAN.";
+CFBundleDisplayName = "Dear Home AI";

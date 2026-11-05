@@ -1,0 +1,103 @@
+{
+  "identifier" : "DEARHOME-MEMBERSHIP",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "MAX_MONTHLY",
+      "localizations" : [
+        {
+          "description" : "Everything in Pro, plus all building-space companion prototypes, advanced scenes, and the custom SOUL & SKILL workshop.",
+          "displayName" : "Dear Home Max (Monthly)",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.s2.dearhome.max.monthly",
+      "referenceName" : "Max Monthly",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "PRO_MONTHLY",
+      "localizations" : [
+        {
+          "description" : "S2 SOUL smart matching (24 archetypes), full nightly Markdown memory letters, evolution charts, cloud LLM API switching, and Expert Task Mode.",
+          "displayName" : "Dear Home Pro (Monthly)",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.s2.dearhome.pro.monthly",
+      "referenceName" : "Pro Monthly",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_developerTeamID" : "XN42ZWWAT9",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "DEARHOME-MEMBERSHIP-GROUP",
+      "localizations" : [
+        {
+          "displayName" : "Dear Home Membership",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Dear Home Membership",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "groupLevel" : 1,
+          "internalID" : "MAX_MONTHLY",
+          "introductoryOffers" : [
+
+          ],
+          "productID" : "com.s2.dearhome.max.monthly",
+          "promotionalOffers" : [
+
+          ],
+          "renewalRate" : "Monthly",
+          "state" : "Active"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "groupLevel" : 2,
+          "internalID" : "PRO_MONTHLY",
+          "introductoryOffers" : [
+
+          ],
+          "productID" : "com.s2.dearhome.pro.monthly",
+          "promotionalOffers" : [
+
+          ],
+          "renewalRate" : "Monthly",
+          "state" : "Active"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

@@ -1,0 +1,3 @@
+NSHomeKitUsageDescription = "亲爱的房子 AI 会读取房间、设备和场景，以便谈论这所房子。这一版只提出建议，不会替你开关设备。";
+NSLocalNetworkUsageDescription = "后续版本会让主人的 iPhone 担任家庭 MQTT 网关。本构建只预留局域网权限，不会扫描局域网。";
+CFBundleDisplayName = "亲爱的房子 AI";

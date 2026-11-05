@@ -1,0 +1,81 @@
+# Dear Home AI — iOS 17 / Swift 6. Links Vendor/llama.xcframework (symlink from Dear Earth).
+name: DearHome
+options:
+  bundleIdPrefix: com.s2
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: XN42ZWWAT9
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+
+targets:
+  DearHome:
+    type: application
+    platform: iOS
+    sources:
+      - path: DearHome
+        excludes:
+          - "Resources/Skills/**"
+      - path: DearHome/Resources/Skills
+        type: folder
+        buildPhase: resources
+      - path: Config/en.lproj
+      - path: Config/zh-Hans.lproj
+    dependencies:
+      - framework: Vendor/llama.xcframework
+        embed: true
+        codeSign: true
+    settings:
+      base:
+        PRODUCT_NAME: DearHome
+        PRODUCT_BUNDLE_IDENTIFIER: com.s2.dearhome
+        INFOPLIST_FILE: Config/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: Dear Home AI
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.lifestyle
+        INFOPLIST_KEY_UILaunchScreen_UIColorName: LaunchBackground
+        CODE_SIGN_ENTITLEMENTS: Config/DearHome.entitlements
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        SUPPORTS_MACCATALYST: NO
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+
+  DearHomeTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: DearHomeTests
+    dependencies:
+      - target: DearHome
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.s2.dearhome.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/DearHome.app/DearHome"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  DearHome:
+    build:
+      targets:
+        DearHome: all
+        DearHomeTests: [test]
+    run:
+      config: Debug
+      storeKitConfiguration: Config/DearHomeMembership.storekit
+    test:
+      config: Debug
+      targets:
+        - DearHomeTests
+    archive:
+      config: Release

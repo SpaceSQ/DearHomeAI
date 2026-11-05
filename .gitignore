@@ -1,0 +1,16 @@
+.DS_Store
+build/
+DerivedData/
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+*.moved-aside
+.swiftpm/
+Vendor/llama.xcframework/
+Vendor/llama.xcframework
+*.gguf
+*.bin
+*.tgz
+*.tar.gz
+.idea/
+.vercel/
