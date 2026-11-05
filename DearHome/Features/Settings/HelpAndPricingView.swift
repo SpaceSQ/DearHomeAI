@@ -144,10 +144,31 @@ struct HelpAndPricingView: View {
     }
 
     private func tierCard(tier: DearHomeTier, paper: PaperPalette) -> some View {
+        let store = model.storeKit
+        return Group {
+            if tier == .free {
+                tierCardBody(tier: tier, paper: paper)
+            } else {
+                Button {
+                    subscribe(tier: tier)
+                } label: {
+                    tierCardBody(tier: tier, paper: paper)
+                }
+                .buttonStyle(.plain)
+                .disabled(tier.rank <= store.activeTier.rank || store.isPurchasing)
+                .accessibilityIdentifier("help.subscribe.\(tierName(tier).lowercased())")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func tierCardBody(tier: DearHomeTier, paper: PaperPalette) -> some View {
+        let store = model.storeKit
         let headline = tier != .free
         let accent: Color = tier == .max ? paper.terracotta : (tier == .pro ? paper.moss : paper.secondary)
+        let isActive = store.activeTier == tier
 
-        return VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(tierName(tier))
                     .font(.system(.headline, design: .serif))
@@ -169,13 +190,33 @@ struct HelpAndPricingView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
+
+            if tier != .free {
+                HStack(spacing: 8) {
+                    if store.isPurchasing {
+                        ProgressView().controlSize(.small).tint(paper.card)
+                    }
+                    Text(subscribeLabel(tier))
+                        .font(.subheadline.bold())
+                        .foregroundStyle(paper.card)
+                    Spacer()
+                    Text(displayPrice(for: tier))
+                        .font(.subheadline.bold())
+                        .foregroundStyle(paper.card)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 11)
+                .frame(maxWidth: .infinity)
+                .background(accent, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(headline ? paper.card : paper.card.opacity(0.6), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(headline ? accent.opacity(0.8) : paper.rule.opacity(0.5), lineWidth: headline ? 1.5 : 1)
+                .stroke(isActive ? accent : (headline ? accent.opacity(0.8) : paper.rule.opacity(0.5)),
+                        lineWidth: isActive ? 2 : (headline ? 1.5 : 1))
         )
     }
 
@@ -236,7 +277,7 @@ struct HelpAndPricingView: View {
     private func upgradeSection(paper: PaperPalette) -> some View {
         let store = model.storeKit
         return VStack(alignment: .leading, spacing: 14) {
-            sectionTitle(model.t("Upgrade", "订阅升级"), paper: paper)
+            sectionTitle(model.t("Manage subscription", "管理订阅"), paper: paper)
 
             HStack {
                 Image(systemName: "crown.fill")
@@ -245,11 +286,6 @@ struct HelpAndPricingView: View {
                     .font(.subheadline)
                     .foregroundStyle(paper.ink)
                 Spacer()
-            }
-
-            if store.activeTier == .free {
-                upgradeButton(product: store.maxMonthly, tierName: tierName(.max), accent: paper.terracotta, paper: paper)
-                upgradeButton(product: store.proMonthly, tierName: tierName(.pro), accent: paper.moss, paper: paper)
             }
 
             Button {
@@ -263,37 +299,104 @@ struct HelpAndPricingView: View {
             .tint(paper.ink)
             .accessibilityIdentifier("help.restore")
 
+            productDiagnostic(paper: paper)
+
             if case .failed(let message) = store.loadState {
                 Text(message)
                     .font(.caption)
                     .foregroundStyle(paper.terracotta)
             }
+
+            Text(model.t(
+                "Subscriptions renew automatically and are charged to your Apple ID. You can cancel or manage your subscription at any time in Settings → Apple ID → Subscriptions. Renewal is charged within 24 hours before the current period ends, unless auto-renew is turned off.",
+                "订阅会自动续期，并从你的 Apple ID 扣款。你可以随时在「设置 → Apple ID → 订阅」中取消或管理。除非关闭自动续期，否则续期费用将在当前周期结束前 24 小时内扣除。"
+            ))
+                .font(.caption2)
+                .foregroundStyle(paper.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(.bottom, 24)
     }
 
-    private func upgradeButton(product: Product?, tierName: String, accent: Color, paper: PaperPalette) -> some View {
+    /// 商品加载状态诊断：帮助定位「能看到档位但点不出支付框」是配置问题还是代码问题。
+    @ViewBuilder
+    private func productDiagnostic(paper: PaperPalette) -> some View {
         let store = model.storeKit
-        return Button {
-            guard let product else { return }
-            Task { await store.purchase(product) }
-        } label: {
-            HStack {
-                if store.isPurchasing {
-                    ProgressView().controlSize(.small)
+        switch store.loadState {
+        case .idle:
+            Text(model.t("Products not loaded yet.", "商品尚未加载。"))
+                .font(.caption2)
+                .foregroundStyle(paper.secondary)
+        case .loading:
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.mini)
+                Text(model.t("Loading products…", "正在加载商品……"))
+                    .font(.caption2)
+                    .foregroundStyle(paper.secondary)
+            }
+        case .ready:
+            let loaded = store.products.count
+            let expected = StoreKitManager.allProductIDs.count
+            if loaded >= expected {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.circle.fill").font(.caption2).foregroundStyle(paper.moss)
+                    Text(model.t("Products loaded: \(loaded)", "商品已加载：\(loaded) 个"))
+                        .font(.caption2)
+                        .foregroundStyle(paper.secondary)
                 }
-                Text(model.t("Subscribe to \(tierName)", "订阅 \(tierName)"))
-                    .frame(maxWidth: .infinity)
-                if let product {
-                    Text(product.displayPrice)
-                        .bold()
+            } else {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill").font(.caption2).foregroundStyle(paper.terracotta)
+                    Text(model.t(
+                        "\(loaded) of \(expected) products configured. Subscriptions are not live until all products are set up in App Store Connect.",
+                        "仅配置 \(loaded)/\(expected) 个商品。请在 App Store Connect 配齐全部商品后，订阅才会生效。"
+                    ))
+                    .font(.caption2)
+                    .foregroundStyle(paper.terracotta)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             }
+        case .failed(let message):
+            HStack(spacing: 6) {
+                Image(systemName: "xmark.circle.fill").font(.caption2).foregroundStyle(paper.terracotta)
+                Text(model.t("Product load failed: \(message)", "商品加载失败：\(message)"))
+                    .font(.caption2)
+                    .foregroundStyle(paper.terracotta)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(accent)
-        .disabled(store.isPurchasing || product == nil)
-        .accessibilityIdentifier("help.subscribe.\(tierName.lowercased())")
+    }
+
+    // MARK: - Purchase helpers
+
+    private func subscribe(tier: DearHomeTier) {
+        let store = model.storeKit
+        guard let product = store.product(for: tier) else {
+            store.purchaseError = Bilingual(
+                en: "This subscription is not available in this build yet. It will go live through the App Store soon.",
+                zh: "该订阅在此构建中尚不可用，很快会通过 App Store 上线。"
+            )
+            return
+        }
+        Task { await store.purchase(product) }
+    }
+
+    private func subscribeLabel(_ tier: DearHomeTier) -> String {
+        let store = model.storeKit
+        if store.activeTier == tier { return model.t("Current plan", "当前套餐") }
+        if tier.rank < store.activeTier.rank { return model.t("Included", "已包含") }
+        return model.t("Subscribe", "订阅")
+    }
+
+    private func displayPrice(for tier: DearHomeTier) -> String {
+        if let product = model.storeKit.product(for: tier) {
+            return product.displayPrice
+        }
+        switch tier {
+        case .free: return "$0"
+        case .pro: return "$4.99/mo"
+        case .max: return "$9.99/mo"
+        }
     }
 
     // MARK: - Data

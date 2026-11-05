@@ -9,6 +9,7 @@ struct ChatScreen: View {
     @Environment(\.colorScheme) private var scheme
     @FocusState private var inputFocused: Bool
     @State private var keyboardHeight: CGFloat = 0
+    @State private var showUpgrade = false
 
     var body: some View {
         @Bindable var model = model
@@ -20,6 +21,18 @@ struct ChatScreen: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 16) {
+                            if model.storeKit.activeTier.rank < DearHomeTier.pro.rank {
+                                PremiumFeatureCard(
+                                    icon: "wand.and.stars",
+                                    title: model.t("Expert Task Mode", "专家任务模式"),
+                                    detail: model.t(
+                                        "Turn any room makeover, schedule, or spatial-flow design into a professional decision plan you can export with one tap.",
+                                        "把房间改造、日程或空间动线设计变成可一键导出的专业决策方案。"
+                                    ),
+                                    requiredTier: .pro,
+                                    showUpgrade: $showUpgrade
+                                )
+                            }
                             ForEach(model.messages) { message in
                                 bubble(message, paper: paper, language: language)
                                     .id(message.id)
@@ -62,6 +75,7 @@ struct ChatScreen: View {
                 keyboardHeight = 0
             }
         }
+        .sheet(isPresented: $showUpgrade) { UpgradeSheet() }
     }
 
     private func header(paper: PaperPalette, language: ContentLanguage) -> some View {

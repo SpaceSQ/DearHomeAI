@@ -3,6 +3,7 @@ import SwiftUI
 struct SpaceScreen: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var scheme
+    @State private var showUpgrade = false
 
     var body: some View {
         let paper = PaperPalette.resolve(scheme)
@@ -17,6 +18,30 @@ struct SpaceScreen: View {
                         .font(.subheadline)
                         .foregroundStyle(paper.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    if model.storeKit.activeTier.rank < DearHomeTier.pro.rank {
+                        PremiumFeatureCard(
+                            icon: "hammer.fill",
+                            title: model.t("Expert Task Mode", "专家任务模式"),
+                            detail: model.t(
+                                "Room makeovers, schedules, and spatial-flow design become a professional decision plan you can export with one tap.",
+                                "房间改造、日程与空间动线设计，变成可一键导出的专业决策方案。"
+                            ),
+                            requiredTier: .pro,
+                            showUpgrade: $showUpgrade
+                        )
+                    }
+                    if model.storeKit.activeTier.rank < DearHomeTier.max.rank {
+                        PremiumFeatureCard(
+                            icon: "building.2.crop.circle",
+                            title: model.t("Advanced scenes & companion prototypes", "高级场景与空间伴侣原型"),
+                            detail: model.t(
+                                "Unlock all building-space companion prototypes and advanced scenes for a house that truly reads its rooms.",
+                                "解锁全系建筑空间伴侣原型与高级场景，让房子真正读懂每一个房间。"
+                            ),
+                            requiredTier: .max,
+                            showUpgrade: $showUpgrade
+                        )
+                    }
                     if model.isLoadingHome {
                         ProgressView(model.t("Reading Apple Home…", "正在读取 Apple Home……"))
                             .tint(paper.ink)
@@ -41,6 +66,7 @@ struct SpaceScreen: View {
                 await model.refreshHome()
             }
         }
+        .sheet(isPresented: $showUpgrade) { UpgradeSheet() }
     }
 
     private func empty(paper: PaperPalette) -> some View {

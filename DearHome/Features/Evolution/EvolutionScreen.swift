@@ -4,6 +4,7 @@ import SwiftUI
 struct EvolutionScreen: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var scheme
+    @State private var showUpgrade = false
 
     var body: some View {
         let paper = PaperPalette.resolve(scheme)
@@ -26,6 +27,19 @@ struct EvolutionScreen: View {
                                  "每一维每天最多移动 1%，而且要等真正的蒸馏。下面的预览不会写进这所房子。"))
                         .font(.footnote)
                         .foregroundStyle(paper.secondary)
+
+                    if model.storeKit.activeTier.rank < DearHomeTier.pro.rank {
+                        PremiumFeatureCard(
+                            icon: "chart.xyaxis.line",
+                            title: model.t("Weekly / monthly / yearly evolution", "周/月/年演化图表"),
+                            detail: model.t(
+                                "Watch how the house spirit drifts over weeks, months, and years — not just today.",
+                                "观察屋灵在周、月、年尺度上的演化，而不只是今天。"
+                            ),
+                            requiredTier: .pro,
+                            showUpgrade: $showUpgrade
+                        )
+                    }
 
                     Chart(EvolutionAxis.allCases) { axis in
                         BarMark(
@@ -66,6 +80,7 @@ struct EvolutionScreen: View {
             .notebookBackground()
             .toolbar(.hidden, for: .navigationBar)
         }
+        .sheet(isPresented: $showUpgrade) { UpgradeSheet() }
     }
 
     private func driftBlock(paper: PaperPalette, language: ContentLanguage) -> some View {

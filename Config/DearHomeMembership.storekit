@@ -17,7 +17,22 @@
       ],
       "productID" : "com.s2.dearhome.max.monthly",
       "referenceName" : "Max Monthly",
-      "type" : "NonConsumable"
+      "type" : "AutoRenewableSubscription"
+    },
+    {
+      "displayPrice" : "79.99",
+      "familyShareable" : false,
+      "internalID" : "MAX_YEARLY",
+      "localizations" : [
+        {
+          "description" : "Everything in Pro, plus all building-space companion prototypes, advanced scenes, and the custom SOUL & SKILL workshop.",
+          "displayName" : "Dear Home Max (Yearly)",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.s2.dearhome.max.yearly",
+      "referenceName" : "Max Yearly",
+      "type" : "AutoRenewableSubscription"
     },
     {
       "displayPrice" : "4.99",
@@ -32,7 +47,22 @@
       ],
       "productID" : "com.s2.dearhome.pro.monthly",
       "referenceName" : "Pro Monthly",
-      "type" : "NonConsumable"
+      "type" : "AutoRenewableSubscription"
+    },
+    {
+      "displayPrice" : "39.99",
+      "familyShareable" : false,
+      "internalID" : "PRO_YEARLY",
+      "localizations" : [
+        {
+          "description" : "S2 SOUL smart matching (24 archetypes), full nightly Markdown memory letters, evolution charts, cloud LLM API switching, and Expert Task Mode.",
+          "displayName" : "Dear Home Pro (Yearly)",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.s2.dearhome.pro.yearly",
+      "referenceName" : "Pro Yearly",
+      "type" : "AutoRenewableSubscription"
     }
   ],
   "settings" : {
@@ -81,6 +111,25 @@
           "codeOffers" : [
 
           ],
+          "groupLevel" : 1,
+          "internalID" : "MAX_YEARLY",
+          "introductoryOffers" : [
+
+          ],
+          "productID" : "com.s2.dearhome.max.yearly",
+          "promotionalOffers" : [
+
+          ],
+          "renewalRate" : "Yearly",
+          "state" : "Active"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
           "groupLevel" : 2,
           "internalID" : "PRO_MONTHLY",
           "introductoryOffers" : [
@@ -91,6 +140,25 @@
 
           ],
           "renewalRate" : "Monthly",
+          "state" : "Active"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "groupLevel" : 2,
+          "internalID" : "PRO_YEARLY",
+          "introductoryOffers" : [
+
+          ],
+          "productID" : "com.s2.dearhome.pro.yearly",
+          "promotionalOffers" : [
+
+          ],
+          "renewalRate" : "Yearly",
           "state" : "Active"
         }
       ]

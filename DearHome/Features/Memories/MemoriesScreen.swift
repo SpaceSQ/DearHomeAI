@@ -3,6 +3,7 @@ import SwiftUI
 struct MemoriesScreen: View {
     @Environment(AppModel.self) private var model
     @Environment(\.colorScheme) private var scheme
+    @State private var showUpgrade = false
 
     var body: some View {
         let paper = PaperPalette.resolve(scheme)
@@ -19,6 +20,19 @@ struct MemoriesScreen: View {
                         .font(.subheadline)
                         .foregroundStyle(paper.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    if model.storeKit.activeTier.rank < DearHomeTier.pro.rank {
+                        PremiumFeatureCard(
+                            icon: "envelope.open.fill",
+                            title: model.t("Nightly memory letters", "每晚记忆书信"),
+                            detail: model.t(
+                                "Read and export the full Markdown memory letter the house writes for you each midnight.",
+                                "阅读并导出屋灵每晚午夜为你写下的完整 Markdown 记忆书信。"
+                            ),
+                            requiredTier: .pro,
+                            showUpgrade: $showUpgrade
+                        )
+                    }
 
                     if ring.exportWarning {
                         warning(paper: paper, language: language, task: ring.completedTaskAtRisk, days: ring.daysUntilOverwrite)
@@ -55,8 +69,19 @@ struct MemoriesScreen: View {
                         .buttonStyle(.bordered)
                         .tint(paper.terracotta)
                     } else {
-                        Button(model.t("Export 30-day .md", "导出 30 天 .md")) {
-                            model.exportMarkdown()
+                        Button {
+                            if model.storeKit.activeTier.rank >= DearHomeTier.pro.rank {
+                                model.exportMarkdown()
+                            } else {
+                                showUpgrade = true
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                if model.storeKit.activeTier.rank < DearHomeTier.pro.rank {
+                                    Image(systemName: "lock.fill")
+                                }
+                                Text(model.t("Export 30-day .md", "导出 30 天 .md"))
+                            }
                         }
                         .buttonStyle(.bordered)
                         .tint(paper.terracotta)
@@ -71,6 +96,7 @@ struct MemoriesScreen: View {
             .notebookBackground()
             .toolbar(.hidden, for: .navigationBar)
         }
+        .sheet(isPresented: $showUpgrade) { UpgradeSheet() }
     }
 
     private func warning(paper: PaperPalette, language: ContentLanguage, task: Bool, days: Int?) -> some View {

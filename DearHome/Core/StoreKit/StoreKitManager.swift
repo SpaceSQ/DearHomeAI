@@ -77,6 +77,15 @@ final class StoreKitManager {
         products.first { $0.id == id }
     }
 
+    /// 某个档次的首选订阅商品：优先月付，月付缺失时回退年付；Free 无商品。
+    func product(for tier: DearHomeTier) -> Product? {
+        switch tier {
+        case .max: return maxMonthly ?? maxYearly
+        case .pro: return proMonthly ?? proYearly
+        case .free: return nil
+        }
+    }
+
     /// 月付商品按 Max(Level 1) → Pro(Level 2) 降序，年付排后。
     var monthlyProducts: [Product] {
         products
